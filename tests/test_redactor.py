@@ -1,46 +1,17 @@
-"""Tests for redact_csv.py"""
+"""Tests for ticket_redactor.redactor"""
 
 import csv
-import os
-import tempfile
 from pathlib import Path
 
 import pytest
 
-from redact_csv import (
+from ticket_redactor.redactor import (
     PlaceholderMap,
-    create_analyzer,
     detect_dialect,
     process_csv,
     redact_cell,
 )
-
-
-# ---------------------------------------------------------------------------
-# Fixtures
-# ---------------------------------------------------------------------------
-
-@pytest.fixture(scope="module")
-def analyzer():
-    """Shared analyzer instance (expensive to create)."""
-    return create_analyzer()
-
-
-@pytest.fixture
-def pmap():
-    return PlaceholderMap()
-
-
-def _write_csv(rows, path=None, delimiter=","):
-    """Helper: write rows to a temp CSV and return the path."""
-    if path is None:
-        fd, path = tempfile.mkstemp(suffix=".csv")
-        os.close(fd)
-    with open(path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f, delimiter=delimiter)
-        for row in rows:
-            writer.writerow(row)
-    return path
+from tests.conftest import write_csv
 
 
 # ---------------------------------------------------------------------------
@@ -138,7 +109,7 @@ class TestProcessCSV:
     def test_basic_csv(self, tmp_path):
         input_path = str(tmp_path / "input.csv")
         output_path = str(tmp_path / "output.csv")
-        _write_csv([
+        write_csv([
             ["name", "email", "note"],
             ["John Smith", "john@example.com", "No issues"],
             ["Jane Doe", "jane@example.com", "Call +1 555-123-4567"],
@@ -162,7 +133,7 @@ class TestProcessCSV:
             ["name", "email"],
             ["Alice", "alice@example.com"],
         ]
-        _write_csv(rows, input_path)
+        write_csv(rows, input_path)
 
         with open(input_path, encoding="utf-8") as f:
             original_content = f.read()
@@ -176,7 +147,7 @@ class TestProcessCSV:
     def test_dry_run(self, tmp_path):
         input_path = str(tmp_path / "input.csv")
         output_path = str(tmp_path / "output.csv")
-        _write_csv([
+        write_csv([
             ["name", "email"],
             ["Bob", "bob@example.com"],
         ], input_path)
@@ -193,7 +164,7 @@ class TestProcessCSV:
         rows = [["id", "email"]]
         for i in range(num_rows):
             rows.append([str(i), f"user{i}@company.com"])
-        _write_csv(rows, input_path)
+        write_csv(rows, input_path)
 
         process_csv(input_path, output_path)
 
@@ -216,7 +187,7 @@ class TestProcessCSV:
     def test_semicolon_delimiter(self, tmp_path):
         input_path = str(tmp_path / "input.csv")
         output_path = str(tmp_path / "output.csv")
-        _write_csv([
+        write_csv([
             ["name", "email"],
             ["Alice", "alice@example.com"],
         ], input_path, delimiter=";")
@@ -233,12 +204,12 @@ class TestProcessCSV:
 class TestDetectDialect:
     def test_comma(self, tmp_path):
         path = str(tmp_path / "test.csv")
-        _write_csv([["a", "b"], ["1", "2"]], path, delimiter=",")
+        write_csv([["a", "b"], ["1", "2"]], path, delimiter=",")
         dialect = detect_dialect(path)
         assert dialect.delimiter == ","
 
     def test_semicolon(self, tmp_path):
         path = str(tmp_path / "test.csv")
-        _write_csv([["a", "b"], ["1", "2"]], path, delimiter=";")
+        write_csv([["a", "b"], ["1", "2"]], path, delimiter=";")
         dialect = detect_dialect(path)
         assert dialect.delimiter == ";"
