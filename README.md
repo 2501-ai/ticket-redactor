@@ -26,7 +26,7 @@ see patterns across rows without knowing the actual identity.
 
 ## Quick start
 
-Requires Python 3.9+ (works on Windows, macOS, and Linux).
+Requires Python 3.10+ (works on Windows, macOS, and Linux).
 
 ```bash
 git clone https://github.com/YOUR_ORG/ticket-redactor.git
