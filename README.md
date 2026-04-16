@@ -24,14 +24,18 @@ modified. A redaction report is printed showing what was found.
 Same values get the same placeholder (e.g. `[PERSON-1]`) so you can still
 see patterns across rows without knowing the actual identity.
 
-## Install
+## Quick start
 
-Requires Python 3.9+.
+Requires Python 3.10+ (works on Windows, macOS, and Linux).
 
 ```bash
+git clone https://github.com/YOUR_ORG/ticket-redactor.git
+cd ticket-redactor
 pip install .
-python -m spacy download en_core_web_lg
 ```
+
+The required spaCy language model (~500 MB) is downloaded automatically on
+first run.
 
 ## Usage
 
@@ -41,19 +45,6 @@ ticket-redactor tickets.csv -o clean.csv      # custom output path
 ticket-redactor tickets.csv --dry-run         # preview without writing
 ```
 
-Or without installing:
-
-```bash
-python -m ticket_redactor tickets.csv
-```
-
-## Running tests
-
-```bash
-pip install -e ".[dev]"
-pytest
-```
-
 ## Notes
 
 - **Encoding:** Reads UTF-8 (with or without BOM). Outputs UTF-8.
@@ -61,3 +52,10 @@ pytest
 - **Performance:** ~1000 rows/sec on a modern laptop.
 - The tool intentionally errs on the side of over-redaction. It is
   better to redact something that looks like PII than to miss actual PII.
+
+## Development
+
+```bash
+pip install -e ".[dev]"
+pytest
+```
